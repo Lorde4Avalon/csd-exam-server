@@ -1,0 +1,26 @@
+{
+  "name": "csd-exam-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main",
+  "scripts": {
+    "start": "ts-node .",
+    "cli": "ts-node cli",
+    "dump": "ts-node cli dump >> dump.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@koa/router": "^10.1.1",
+    "@types/koa": "^2.13.4",
+    "@types/koa__router": "^8.0.8",
+    "@yuuza/btrdb": "^0.5.1",
+    "koa": "^2.13.3"
+  },
+  "devDependencies": {
+    "ts-node": "^10.3.0",
+    "typescript": "^4.4.4"
+  }
+}
