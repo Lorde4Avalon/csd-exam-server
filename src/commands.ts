@@ -1,4 +1,4 @@
-import { db, init, setSeat, setSign, setUser } from "./db";
+import { db, init, setSeat, setSign, setUser, dump } from "./db";
 import { readFile, writeFile } from "fs/promises";
 
 // standard 'readline' boilerplate
@@ -28,11 +28,7 @@ export async function handleCommand(argv: string[]) {
 
 const commands: Record<string, (argv: string[]) => Promise<void>> = {
     async dump(argv) {
-        const str = JSON.stringify({
-            sign: await setSign.getAll(),
-            user: await setUser.getAll(),
-            seat: await setSeat.getAll(),
-        });
+        const str = JSON.stringify(await dump());
         if (argv[1]) {
             await writeFile(argv[1], str, 'utf-8');
             console.info('written to file', argv[1]);

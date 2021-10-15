@@ -1,7 +1,7 @@
 //@ts-check
 import Router from "@koa/router";
 import { ApiError } from "./errors";
-import { enterLock, exitLock, getUserById, getUserBySeat, sign, update } from "./db";
+import { dump, enterLock, exitLock, getUserById, getUserBySeat, sign, update } from "./db";
 export const router = new Router();
 
 function api(func: Router.Middleware) {
@@ -62,4 +62,8 @@ router.get(BASE_PATH + '/query', api(async (ctx) => {
             throw new ApiError('usage: (id) or (seat, site)');
         }
     }
+}));
+
+router.get(BASE_PATH + '/dump', api(async (ctx) => {
+    return await dump();
 }));

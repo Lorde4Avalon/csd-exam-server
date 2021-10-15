@@ -1,4 +1,5 @@
 import { Database, IDbDocSet, query as Q } from "@yuuza/btrdb";
+import chalk from "chalk";
 import { ApiError } from "./errors";
 import { OneWriterLock } from "./util";
 
@@ -24,6 +25,7 @@ export interface Sign {
     id: number;
     site: 1 | 2;
     seat: number;
+    time: string;
 }
 
 export interface Seat {
@@ -63,7 +65,7 @@ export async function sign(id: number, site: 1 | 2) {
         temp.name = '备用_' + id;
         await setUser.upsert(temp);
         user = temp;
-        console.info("[BACKUP_USER]", origId, '->', id);
+        console.info(chalk.bold("[BACKUP_USER]"), origId, '->', id);
     }
 
     let sign = await setSign.get(id);
@@ -83,14 +85,15 @@ export async function sign(id: number, site: 1 | 2) {
         sign = {
             id,
             seat: seat?.seatNo ?? -1,
-            site
+            site,
+            time: new Date().toLocaleString('sv'),
         };
         await setSign.upsert(sign);
-        console.info("[SIGN]", id, `(${user.name})`, `[${site}]${seat?.seatNo}`);
+        console.info(chalk.bold('[SIGN]'), id, `(${user.name})`, `[${site}]${seat?.seatNo}`);
     }
 
     await db.commit();
-    return { ...user, seat: sign?.seat, site: sign?.site };
+    return signInfo(user, sign);
 }
 
 export async function update(id: number, seat: number, name: string) {
@@ -106,21 +109,31 @@ export async function update(id: number, seat: number, name: string) {
     await setSign.upsert(sign);
     await setSeat.upsert(newSeat);
     await db.commit();
-    console.info("[UPDATE]", id, `(${name})`, `[${sign.site}]${seat}`);
+    console.info(chalk.bold("[UPDATE]"), id, `(${name})`, `[${sign.site}]${seat}`);
 }
 
 export async function getUserById(id: number) {
     let user = await setUser.get(id);
-    if (!user) {
-        user = { id, name: '', ojUsername: '', ojPassword: '' };
-    }
+    if (!user) { throw new ApiError('no user'); }
     const sign = await setSign.get(id);
-    return { ...user, seat: sign?.seat, site: sign?.site };
+    return signInfo(user, sign);
 }
 
 export async function getUserBySeat(seat: number, site: number) {
     let [sign] = await setSign.query(Q`site_seat == ${[site, seat]}`);
     if (!sign) throw new ApiError('no record');
     const user = await setUser.get(sign.id);
-    return { ...user, seat: sign.seat, site: sign.site };
+    return signInfo(user, sign);
+}
+
+function signInfo(user: User, sign: Sign | null) {
+    return { ...user, seat: sign?.seat, site: sign?.site, time: sign?.time }
+}
+
+export async function dump() {
+    return {
+        sign: await setSign.getAll(),
+        user: await setUser.getAll(),
+        seat: await setSeat.getAll(),
+    };
 }

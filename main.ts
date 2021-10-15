@@ -5,6 +5,7 @@ import { init } from "./src/db";
 import { router } from "./src/routes";
 import { handleCommand, input } from "./src/commands";
 import { config } from "./config";
+import chalk from "chalk";
 
 // trick for dynamic importing in ts-node
 const importTask = (0, eval)("import('node-fetch')") as Promise<typeof import('node-fetch')>;
@@ -20,7 +21,7 @@ app.use(async (ctx, next) => {
     const begin = Date.now();
     await next();
     const req = ctx.request;
-    console.info(`[REQ] ${new Date().toLocaleString('sv')} | ${ctx.response.status} | ${req.method} ${req.url.toString()} | ${req.ip} | (${Date.now() - begin} ms)`);
+    console.info(`[${chalk.bold('REQ')}] ${new Date().toLocaleString('sv')} | ${ctx.response.status} | ${req.method} ${req.url.toString()} | ${req.ip} | (${Date.now() - begin} ms)`);
 });
 
 // HTTP Basic auth
