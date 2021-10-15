@@ -32,6 +32,9 @@ export async function init() {
     await db.openFile("data.db");
     setUser = await db.createSet("user", "doc");
     setSign = await db.createSet("sign", "doc");
+    await setSign.useIndexes({
+        site_seat: s => [s.site, s.seat],
+    })
     setSeat = await db.createSet("seat", "doc");
     await setSeat.useIndexes({
         used_site: s => [s.used, s.site],
@@ -80,16 +83,31 @@ export async function sign(id: number, site: 1 | 2) {
 
 export async function update(id: number, seat: number, name: string) {
     const user = await setUser.get(id);
+    if (!user) throw new ApiError("no such user");
     const sign = await setSign.get(id);
     user.name = name;
-    setSeat.query(Q`site_seatNo == ${[]}`)
+    const [newSeat] = await setSeat.query(Q`site_seatNo == ${[sign.site, seat]}`)
+    if (!newSeat) throw new ApiError("no such seat");
+    newSeat.used = true;
+    sign.seat = seat;
+    await setUser.upsert(user);
+    await setSign.upsert(sign);
+    await setSeat.upsert(newSeat);
+    await db.commit();
 }
 
-export async function getUser(id: number) {
+export async function getUserById(id: number) {
     let user = await setUser.get(id);
     if (!user) {
         user = { id, name: '', ojUsername: '', ojPassword: '' };
     }
     const sign = await setSign.get(id);
     return { ...user, seat: sign?.seat, site: sign?.site };
+}
+
+export async function getUserBySeat(seat: number, site: number) {
+    let [sign] = await setSign.query(Q`site_seat == ${[site, seat]}`);
+    if (!sign) throw new ApiError('no record');
+    const user = await setUser.get(sign.id);
+    return { ...user, seat: sign.seat, site: sign.site };
 }

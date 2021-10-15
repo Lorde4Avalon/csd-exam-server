@@ -1,7 +1,7 @@
 //@ts-check
 import Router from "@koa/router";
 import { ApiError } from "./errors";
-import { getUser, sign } from "./db";
+import { getUserById, getUserBySeat, sign, update } from "./db";
 export const router = new Router();
 
 function api(func: Router.Middleware) {
@@ -11,7 +11,7 @@ function api(func: Router.Middleware) {
             const r = await func(ctx, next);
             ctx.respond = true;
             ctx.response.status = 200;
-            ctx.response.body = r;
+            if (r !== undefined) ctx.response.body = r;
         } catch (error) {
             console.error(error);
             if (error instanceof ApiError) {
@@ -41,6 +41,15 @@ router.post('/update', api(async (ctx) => {
 
 router.get('/query', api(async (ctx) => {
     const id = parseInt(ctx.request.URL.searchParams.get('id')!);
-    if (isNaN(id)) throw new ApiError('id is not a number');
-    return await getUser(id);
+    if (!isNaN(id)) {
+        return await getUserById(id);
+    } else {
+        const seat = parseInt(ctx.request.URL.searchParams.get('seat')!);
+        const site = parseInt(ctx.request.URL.searchParams.get('site')!);
+        if (!isNaN(seat) && !isNaN(site)) {
+            return await getUserBySeat(seat, site);
+        } else {
+            throw new ApiError('usage: (id) or (seat, site)');
+        }
+    }
 }));
