@@ -1,7 +1,17 @@
 import { Database, IDbDocSet, query as Q } from "@yuuza/btrdb";
 import { ApiError } from "./errors";
+import { OneWriterLock } from "./util";
 
 export const db = new Database();
+const _lock = new OneWriterLock();
+
+export function enterLock() {
+    return _lock.enterWriter();
+}
+
+export function exitLock() {
+    _lock.exitWriter();
+}
 
 export interface User {
     id: number;
@@ -29,7 +39,7 @@ export let setSign: IDbDocSet<Sign>;
 export let setSeat: IDbDocSet<Seat>;
 
 export async function init() {
-    await db.openFile("data.db");
+    await db.openFile("data/data.db");
     setUser = await db.createSet("user", "doc");
     setSign = await db.createSet("sign", "doc");
     await setSign.useIndexes({
@@ -47,11 +57,13 @@ export async function sign(id: number, site: 1 | 2) {
     if (!user) {
         const temp = (await setUser.query(Q`id < ${100}`)).shift();
         if (!temp) throw new ApiError('no account');
-        await setUser.delete(temp.id);
+        const origId = temp.id;
+        await setUser.delete(origId);
         temp.id = id;
         temp.name = '备用_' + id;
         await setUser.upsert(temp);
         user = temp;
+        console.info("[BACKUP_USER]", origId, '->', id);
     }
 
     let sign = await setSign.get(id);
@@ -63,7 +75,6 @@ export async function sign(id: number, site: 1 | 2) {
             usableSeats = usableSeats.sort((a, b) => a.prio - b.prio);
             const prio = usableSeats[0].prio;
             usableSeats = usableSeats.filter(x => x.prio == prio);
-            console.info(usableSeats);
             seat = usableSeats[Math.floor(Math.random() * usableSeats.length)];
             seat.used = true;
             await setSeat.upsert(seat);
@@ -75,6 +86,7 @@ export async function sign(id: number, site: 1 | 2) {
             site
         };
         await setSign.upsert(sign);
+        console.info("[SIGN]", id, `(${user.name})`, `[${site}]${seat?.seatNo}`);
     }
 
     await db.commit();
@@ -94,6 +106,7 @@ export async function update(id: number, seat: number, name: string) {
     await setSign.upsert(sign);
     await setSeat.upsert(newSeat);
     await db.commit();
+    console.info("[UPDATE]", id, `(${name})`, `[${sign.site}]${seat}`);
 }
 
 export async function getUserById(id: number) {

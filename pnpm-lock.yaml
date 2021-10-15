@@ -1,20 +1,30 @@
 lockfileVersion: 5.3
 
 specifiers:
+  '@koa/cors': ^3.1.0
   '@koa/router': ^10.1.1
   '@types/koa': ^2.13.4
+  '@types/koa-compress': ^4.0.3
+  '@types/koa__cors': ^3.0.3
   '@types/koa__router': ^8.0.8
   '@yuuza/btrdb': ^0.5.1
   koa: ^2.13.3
+  koa-compress: ^5.1.0
+  node-fetch: ^3.0.0
   ts-node: ^10.3.0
   typescript: ^4.4.4
 
 dependencies:
+  '@koa/cors': 3.1.0
   '@koa/router': 10.1.1
   '@types/koa': 2.13.4
+  '@types/koa-compress': 4.0.3
+  '@types/koa__cors': 3.0.3
   '@types/koa__router': 8.0.8
   '@yuuza/btrdb': 0.5.1
   koa: 2.13.3
+  koa-compress: 5.1.0
+  node-fetch: 3.0.0
 
 devDependencies:
   ts-node: 10.3.0_typescript@4.4.4
@@ -33,6 +43,13 @@ packages:
     dependencies:
       '@cspotcode/source-map-consumer': 0.8.0
     dev: true
+
+  /@koa/cors/3.1.0:
+    resolution: {integrity: sha512-7ulRC1da/rBa6kj6P4g2aJfnET3z8Uf3SWu60cjbtxTA5g8lxRdX/Bd2P92EagGwwAhANeNw8T8if99rJliR6Q==}
+    engines: {node: '>= 8.0.0'}
+    dependencies:
+      vary: 1.1.2
+    dev: false
 
   /@koa/router/10.1.1:
     resolution: {integrity: sha512-ORNjq5z4EmQPriKbR0ER3k4Gh7YGNhWDL7JBW+8wXDrHLbWYKYSJaOJ9aN06npF5tbTxe2JBOsurpJDAvjiXKw==}
@@ -130,6 +147,13 @@ packages:
       '@types/koa': 2.13.4
     dev: false
 
+  /@types/koa-compress/4.0.3:
+    resolution: {integrity: sha512-nJSII/tOSvYCwk3yDEBJLHd8ctkt5CQFZ0j8ZBnHZ2x0hg24z9H1i38lWXA/5z0Ix0uitMW1jov+kVbQI1aNPQ==}
+    dependencies:
+      '@types/koa': 2.13.4
+      '@types/node': 16.11.0
+    dev: false
+
   /@types/koa/2.13.4:
     resolution: {integrity: sha512-dfHYMfU+z/vKtQB7NUrthdAEiSvnLebvBjwHtfFmpZmB7em2N3WVQdHgnFq+xvyVgxW5jKDmjWfLD3lw4g4uTw==}
     dependencies:
@@ -141,6 +165,12 @@ packages:
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
       '@types/node': 16.11.0
+    dev: false
+
+  /@types/koa__cors/3.0.3:
+    resolution: {integrity: sha512-74Xb4hJOPGKlrQ4PRBk1A/p0gfLpgbnpT0o67OMVbwyeMXvlBN+ZCRztAAmkKZs+8hKbgMutUlZVbA52Hr/0IA==}
+    dependencies:
+      '@types/koa': 2.13.4
     dev: false
 
   /@types/koa__router/8.0.8:
@@ -199,6 +229,11 @@ packages:
     resolution: {integrity: sha512-58S9QDqG0Xx27YwPSt9fJxivjYl432YCwfDMfZ+71RAqUrZef7LrKQZ3LHLOwCS4FLNBplP533Zx895SeOCHvA==}
     dev: true
 
+  /bytes/3.1.0:
+    resolution: {integrity: sha512-zauLjrfCG+xvoyaqLoV8bLVXXNGC4JqlxFCutSDWA6fJrTo2ZuvLYTqZ7aHBLZSMOopbzwv8f+wZcVzfVTI2Dg==}
+    engines: {node: '>= 0.8'}
+    dev: false
+
   /cache-content-type/1.0.1:
     resolution: {integrity: sha512-IKufZ1o4Ut42YUrZSo8+qnMTrFuKkvyoLXUywKz9GJ5BrhOFGhLdkx9sG4KAnVvbY6kEcSFjLQul+DVmBm2bgA==}
     engines: {node: '>= 6.0.0'}
@@ -210,6 +245,13 @@ packages:
   /co/4.6.0:
     resolution: {integrity: sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=}
     engines: {iojs: '>= 1.0.0', node: '>= 0.12.0'}
+    dev: false
+
+  /compressible/2.0.18:
+    resolution: {integrity: sha512-AF3r7P5dWxL8MxyITRMlORQNaOA2IkAFaTr4k7BUumjPtRpGDTZpl0Pb1XCO6JeDCBdp126Cgs9sMxqSjgYyRg==}
+    engines: {node: '>= 0.6'}
+    dependencies:
+      mime-db: 1.50.0
     dev: false
 
   /content-disposition/0.5.3:
@@ -235,6 +277,11 @@ packages:
   /create-require/1.1.1:
     resolution: {integrity: sha512-dcKFX3jn0MpIaXjisoRvexIJVEKzaq7z2rZKxf+MSr9TkdmHmsU4m2lcLojrj/FHl8mk5VxMmYA+ftRkP/3oKQ==}
     dev: true
+
+  /data-uri-to-buffer/3.0.1:
+    resolution: {integrity: sha512-WboRycPNsVw3B3TL559F7kuBUM4d8CgMEvk6xEJlOp7OBPjt6G7z8WMWlD2rOFZLk6OYfFIUGsCOWzcQH9K2og==}
+    engines: {node: '>= 6'}
+    dev: false
 
   /debug/4.3.2:
     resolution: {integrity: sha512-mOp8wKcvj7XxC78zLgw/ZA+6TSgkoE2C/ienthhRD298T7UNwAg9diBpLRxC0mOezLl4B0xV7M0cCO6P/O0Xhw==}
@@ -286,6 +333,13 @@ packages:
 
   /escape-html/1.0.3:
     resolution: {integrity: sha1-Aljq5NPQwJdN4cFpGI7wBR0dGYg=}
+    dev: false
+
+  /fetch-blob/3.1.2:
+    resolution: {integrity: sha512-hunJbvy/6OLjCD0uuhLdp0mMPzP/yd2ssd1t2FCJsaA7wkWhpbp9xfuNVpv7Ll4jFhzp6T4LAupSiV9uOeg0VQ==}
+    engines: {node: ^12.20 || >= 14.13}
+    dependencies:
+      web-streams-polyfill: 3.1.1
     dev: false
 
   /fresh/0.5.2:
@@ -346,12 +400,27 @@ packages:
     resolution: {integrity: sha512-8ODW8TrDuMYvXRwra/Kh7/rJo9BtOfPc6qO8eAfC80CnCvSjSl0bkRM24X6/XBBEyj0v1nRUQ1LyOy3dbqOWXw==}
     dev: false
 
+  /koa-compress/5.1.0:
+    resolution: {integrity: sha512-G3Ppo9jrUwlchp6qdoRgQNMiGZtM0TAHkxRZQ7EoVvIG8E47J4nAsMJxXHAUQ+0oc7t0MDxSdONWTFcbzX7/Bg==}
+    engines: {node: '>= 8.0.0'}
+    dependencies:
+      bytes: 3.1.0
+      compressible: 2.0.18
+      http-errors: 1.8.0
+      koa-is-json: 1.0.0
+      statuses: 2.0.1
+    dev: false
+
   /koa-convert/2.0.0:
     resolution: {integrity: sha512-asOvN6bFlSnxewce2e/DK3p4tltyfC4VM7ZwuTuepI7dEQVcvpyFuBcEARu1+Hxg8DIwytce2n7jrZtRlPrARA==}
     engines: {node: '>= 10'}
     dependencies:
       co: 4.6.0
       koa-compose: 4.1.0
+    dev: false
+
+  /koa-is-json/1.0.0:
+    resolution: {integrity: sha1-JzwH7c3Ljfaiwat9We52SRRR7BQ=}
     dev: false
 
   /koa/2.13.3:
@@ -420,6 +489,14 @@ packages:
     engines: {node: '>= 0.6'}
     dev: false
 
+  /node-fetch/3.0.0:
+    resolution: {integrity: sha512-bKMI+C7/T/SPU1lKnbQbwxptpCrG9ashG+VkytmXCPZyuM9jB6VU+hY0oi4lC8LxTtAeWdckNCTa3nrGsAdA3Q==}
+    engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
+    dependencies:
+      data-uri-to-buffer: 3.0.1
+      fetch-blob: 3.1.2
+    dev: false
+
   /on-finished/2.3.0:
     resolution: {integrity: sha1-IPEzZIGwg811M3mSoWlxqi2QaUc=}
     engines: {node: '>= 0.8'}
@@ -451,6 +528,11 @@ packages:
   /statuses/1.5.0:
     resolution: {integrity: sha1-Fhx9rBd2Wf2YEfQ3cfqZOBR4Yow=}
     engines: {node: '>= 0.6'}
+    dev: false
+
+  /statuses/2.0.1:
+    resolution: {integrity: sha512-RwNA9Z/7PrK06rYLIzFMlaF+l73iwpzsqRIFgbMLbTcLD6cOao82TaWefPXQvB2fOC4AjuYSEndS7N/mTCbkdQ==}
+    engines: {node: '>= 0.8'}
     dev: false
 
   /toidentifier/1.0.0:
@@ -509,6 +591,11 @@ packages:
   /vary/1.1.2:
     resolution: {integrity: sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=}
     engines: {node: '>= 0.8'}
+    dev: false
+
+  /web-streams-polyfill/3.1.1:
+    resolution: {integrity: sha512-Czi3fG883e96T4DLEPRvufrF2ydhOOW1+1a6c3gNjH2aIh50DNFBdfwh2AKoOf1rXvpvavAoA11Qdq9+BKjE0Q==}
+    engines: {node: '>= 8'}
     dev: false
 
   /ylru/1.2.1:

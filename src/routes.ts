@@ -1,12 +1,16 @@
 //@ts-check
 import Router from "@koa/router";
 import { ApiError } from "./errors";
-import { getUserById, getUserBySeat, sign, update } from "./db";
+import { enterLock, exitLock, getUserById, getUserBySeat, sign, update } from "./db";
 export const router = new Router();
 
 function api(func: Router.Middleware) {
     return (async (ctx, next) => {
         ctx.respond = true;
+        const beforeLock = Date.now();
+        await enterLock();
+        let now = Date.now();
+        if (now - beforeLock > 100) console.info("[wait_lock_ms]", now - beforeLock);
         try {
             const r = await func(ctx, next);
             ctx.respond = true;
@@ -18,11 +22,17 @@ function api(func: Router.Middleware) {
                 ctx.response.status = 450;
                 ctx.response.body = error.message;
             }
+        } finally {
+            exitLock();
+            now = Date.now();
+            if (now - beforeLock > 100) console.info("[held_lock_ms]", now - beforeLock);
         }
     }) as Router.Middleware
 }
 
-router.post('/sign', api(async (ctx) => {
+const BASE_PATH = '/api';
+
+router.post(BASE_PATH + '/sign', api(async (ctx) => {
     const id = parseInt(ctx.request.URL.searchParams.get('id')!);
     const site = parseInt(ctx.request.URL.searchParams.get('site')!);
     if (isNaN(id)) throw new ApiError('id is not a number');
@@ -30,7 +40,7 @@ router.post('/sign', api(async (ctx) => {
     return await sign(id, site);
 }));
 
-router.post('/update', api(async (ctx) => {
+router.post(BASE_PATH + '/update', api(async (ctx) => {
     const id = parseInt(ctx.request.URL.searchParams.get('id')!);
     const seat = parseInt(ctx.request.URL.searchParams.get('seat')!);
     const name = ctx.request.URL.searchParams.get('name')!;
@@ -39,7 +49,7 @@ router.post('/update', api(async (ctx) => {
     return await update(id, seat, name);
 }));
 
-router.get('/query', api(async (ctx) => {
+router.get(BASE_PATH + '/query', api(async (ctx) => {
     const id = parseInt(ctx.request.URL.searchParams.get('id')!);
     if (!isNaN(id)) {
         return await getUserById(id);

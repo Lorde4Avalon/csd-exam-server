@@ -7,17 +7,23 @@
     "start": "ts-node .",
     "cli": "ts-node cli",
     "dump": "ts-node cli dump >> dump.json",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": ""
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@koa/cors": "^3.1.0",
     "@koa/router": "^10.1.1",
     "@types/koa": "^2.13.4",
+    "@types/koa-compress": "^4.0.3",
+    "@types/koa__cors": "^3.0.3",
     "@types/koa__router": "^8.0.8",
     "@yuuza/btrdb": "^0.5.1",
-    "koa": "^2.13.3"
+    "koa": "^2.13.3",
+    "koa-compress": "^5.1.0",
+    "node-fetch": "^3.0.0"
   },
   "devDependencies": {
     "ts-node": "^10.3.0",
