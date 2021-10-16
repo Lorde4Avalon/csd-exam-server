@@ -130,6 +130,15 @@ function signInfo(user: User, sign: Sign | null) {
     return { ...user, seat: sign?.seat, site: sign?.site, time: sign?.time }
 }
 
+export async function dumpSignInfo() {
+    const result = [];
+    for (const sign of await setSign.getAll()) {
+        const user = await setUser.get(sign.id);
+        result.push(signInfo(user, sign));
+    }
+    return result;
+}
+
 export async function dump() {
     return {
         sign: await setSign.getAll(),

@@ -1,4 +1,4 @@
-import { db, init, setSeat, setSign, setUser, dump } from "./db";
+import { db, init, setSeat, setSign, setUser, dump, dumpSignInfo } from "./db";
 import { readFile, writeFile } from "fs/promises";
 
 // standard 'readline' boilerplate
@@ -14,14 +14,24 @@ export function input(prompt: string = ''): Promise<string> {
     });
 }
 
+export async function writeData(str: string, path?: string | null) {
+    if (path) {
+        await writeFile(path, str, 'utf-8');
+        console.info('written to file', path);
+    } else {
+        console.info(str);
+    }
+}
+
 export async function handleCommand(argv: string[]) {
     const cmd = argv[0];
     if (Object.prototype.hasOwnProperty.call(commands, cmd)) {
         await commands[cmd](argv);
     } else {
         console.info('commands:')
-        console.info('  dump [file]')
-        console.info('  import_user <file>')
+        console.info('  dump [file.json]')
+        console.info('  dump_signs [file.csv]')
+        console.info('  import_users <file>')
         console.info('  gen_seats')
     }
 }
@@ -29,12 +39,15 @@ export async function handleCommand(argv: string[]) {
 const commands: Record<string, (argv: string[]) => Promise<void>> = {
     async dump(argv) {
         const str = JSON.stringify(await dump());
-        if (argv[1]) {
-            await writeFile(argv[1], str, 'utf-8');
-            console.info('written to file', argv[1]);
-        } else {
-            console.info(str);
-        }
+        await writeData(str, argv[1]);
+    },
+
+    async dump_signs(argv) {
+        const signs = await dumpSignInfo();
+        const str = signs
+            .sort((a, b) => a.ojUsername.localeCompare(b.ojUsername))
+            .map(x => `${x.id},${x.name},${x.ojUsername},${x.site},${x.seat},${x.time}\n`).join('');
+        await writeData(str, argv[1]);
     },
 
     async import_user(argv) {
@@ -72,8 +85,8 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
             11, 9, 6, 5, 2, 1,
         ];
         const prios = [
-            2, 5, 5, 3, 3, 1,
-            2, 6, 6, 4, 4, 1
+            8, 5, 5, 3, 3, 7,
+            8, 6, 6, 4, 4, 7,
         ];
         const prioMap = Object.fromEntries(steps.map((x, i) => [x, prios[i]]));
         for (const site of [1, 2] as const) {
@@ -88,5 +101,5 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
         }
         console.info('Generated.');
         await db.commit();
-    }
+    },
 }
