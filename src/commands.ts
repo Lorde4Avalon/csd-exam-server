@@ -50,7 +50,7 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
         await writeData(str, argv[1]);
     },
 
-    async import_user(argv) {
+    async import_users(argv) {
         console.info('Had', setUser.count, 'users.');
         if (setUser.count > 0) {
             if ((await input('Users exists? overwrite? (yes/NO)')).toLowerCase() != 'yes') {

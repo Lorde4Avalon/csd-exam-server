@@ -1,7 +1,7 @@
 //@ts-check
 import Router from "@koa/router";
 import { ApiError } from "./errors";
-import { dump, enterLock, exitLock, getUserById, getUserBySeat, sign, update } from "./db";
+import { dump, dumpSignInfo, enterLock, exitLock, getUserById, getUserByOjUsername, getUserBySeat, sign, update } from "./db";
 export const router = new Router();
 
 function api(func: Router.Middleware) {
@@ -44,24 +44,29 @@ router.post(BASE_PATH + '/update', api(async (ctx) => {
     const id = parseInt(ctx.request.URL.searchParams.get('id')!);
     const seat = parseInt(ctx.request.URL.searchParams.get('seat')!);
     const name = ctx.request.URL.searchParams.get('name')!;
+    const note = ctx.request.URL.searchParams.get('note')!;
     if (isNaN(id)) throw new ApiError('id is not a number');
     if (isNaN(seat)) throw new ApiError('seat is not a number');
-    return await update(id, seat, name);
+    return await update(id, seat, name, note);
 }));
 
 router.get(BASE_PATH + '/query', api(async (ctx) => {
-    const id = parseInt(ctx.request.URL.searchParams.get('id')!);
-    if (!isNaN(id)) {
-        return await getUserById(id);
+    const params = ctx.request.URL.searchParams;
+    if (params.get('id')) {
+        return await getUserById(parseInt(params.get('id')!));
+    } else if (params.get('seat')) {
+        const seat = parseInt(params.get('seat')!);
+        const site = parseInt(params.get('site')!);
+        return await getUserBySeat(seat, site);
+    } else if (params.get('ojUsername')) {
+        return await getUserByOjUsername(params.get('ojUsername')!);
     } else {
-        const seat = parseInt(ctx.request.URL.searchParams.get('seat')!);
-        const site = parseInt(ctx.request.URL.searchParams.get('site')!);
-        if (!isNaN(seat) && !isNaN(site)) {
-            return await getUserBySeat(seat, site);
-        } else {
-            throw new ApiError('usage: (id) or (seat, site)');
-        }
+        throw new ApiError('usage: (id) or (seat, site) or (ojUsername)');
     }
+}));
+
+router.get(BASE_PATH + '/signs', api(async (ctx) => {
+    return await dumpSignInfo();
 }));
 
 router.get(BASE_PATH + '/dump', api(async (ctx) => {

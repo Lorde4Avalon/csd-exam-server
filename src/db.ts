@@ -26,6 +26,7 @@ export interface Sign {
     site: 1 | 2;
     seat: number;
     time: string;
+    note: string;
 }
 
 export interface Seat {
@@ -43,6 +44,9 @@ export let setSeat: IDbDocSet<Seat>;
 export async function init() {
     await db.openFile("data/data.db");
     setUser = await db.createSet("user", "doc");
+    await setUser.useIndexes({
+        ojUsername: s => s.ojUsername,
+    })
     setSign = await db.createSet("sign", "doc");
     await setSign.useIndexes({
         site_seat: s => [s.site, s.seat],
@@ -87,6 +91,7 @@ export async function sign(id: number, site: 1 | 2) {
             seat: seat?.seatNo ?? -1,
             site,
             time: new Date().toLocaleString('sv'),
+            note: '',
         };
         await setSign.upsert(sign);
         console.info(chalk.bold('[SIGN]'), id, `(${user.name})`, `[${site}]${seat?.seatNo}`);
@@ -96,7 +101,7 @@ export async function sign(id: number, site: 1 | 2) {
     return signInfo(user, sign);
 }
 
-export async function update(id: number, seat: number, name: string) {
+export async function update(id: number, seat: number, name: string, note: string | null) {
     const user = await setUser.get(id);
     if (!user) throw new ApiError("no such user");
     const sign = await setSign.get(id);
@@ -105,11 +110,12 @@ export async function update(id: number, seat: number, name: string) {
     if (!newSeat) throw new ApiError("no such seat");
     newSeat.used = true;
     sign.seat = seat;
+    if (note != null) sign.note = note;
     await setUser.upsert(user);
     await setSign.upsert(sign);
     await setSeat.upsert(newSeat);
     await db.commit();
-    console.info(chalk.bold("[UPDATE]"), id, `(${name})`, `[${sign.site}]${seat}`);
+    console.info(chalk.bold("[UPDATE]"), id, `(${name})`, `[${sign.site}]${seat}`, `note=` + note);
 }
 
 export async function getUserById(id: number) {
@@ -126,8 +132,15 @@ export async function getUserBySeat(seat: number, site: number) {
     return signInfo(user, sign);
 }
 
+export async function getUserByOjUsername(ojUsername: string) {
+    let [user] = await setUser.query(Q`ojUsername == ${ojUsername}`);
+    if (!user) throw new ApiError('no user');
+    const sign = await setSign.get(user.id);
+    return signInfo(user, sign);
+}
+
 function signInfo(user: User, sign: Sign | null) {
-    return { ...user, seat: sign?.seat, site: sign?.site, time: sign?.time }
+    return { ...user, seat: sign?.seat, site: sign?.site, time: sign?.time, note: sign?.note }
 }
 
 export async function dumpSignInfo() {
