@@ -29,6 +29,7 @@ export async function handleCommand(argv: string[]) {
     await commands[cmd](argv);
   } else {
     console.info("commands:");
+    console.info("  stats");
     console.info("  dump [file.json]");
     console.info("  dump_signs [file.csv]");
     console.info("  import_users <file.csv>");
@@ -36,7 +37,21 @@ export async function handleCommand(argv: string[]) {
   }
 }
 
-const commands: Record<string, (argv: string[]) => Promise<void>> = {
+function count<T>(arr: T[], selector: (item: T) => any) {
+  let n = 0;
+  return arr.reduce((prev, item) => prev + (selector(item) ? 1 : 0), 0);
+}
+
+export const commands: Record<string, (argv: string[]) => Promise<void>> = {
+  async stats() {
+    const all = await dump();
+    let str = "OJ Users: " + count(all.user, (u) => u.studentId) + "/" +
+      all.user.length;
+    str += "\nSigns: " + all.sign.length;
+    str += "\nSeats: " + count(all.seat, (s) => s.used) + "/" + all.seat.length;
+    console.info(str);
+  },
+
   async dump(argv) {
     const str = JSON.stringify(await dump());
     await writeData(str, argv[1]);

@@ -4,7 +4,7 @@ import send from "koa-send";
 import compress from "koa-compress";
 import { init } from "./src/db";
 import { router } from "./src/routes";
-import { handleCommand, input } from "./src/commands";
+import { commands, handleCommand, input } from "./src/commands";
 import { config } from "./config";
 import chalk from "chalk";
 import fetch from "node-fetch";
@@ -77,6 +77,7 @@ async function main() {
   app.listen(5023);
 
   // REPL
+  await commands.stats([]);
   await handleCommand(["help"]);
   while (true) {
     const line = await input("> ");
