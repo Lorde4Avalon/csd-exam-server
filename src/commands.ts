@@ -31,7 +31,7 @@ export async function handleCommand(argv: string[]) {
         console.info('commands:')
         console.info('  dump [file.json]')
         console.info('  dump_signs [file.csv]')
-        console.info('  import_users <file>')
+        console.info('  import_users <file.csv>')
         console.info('  gen_seats')
     }
 }
@@ -46,7 +46,7 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
         const signs = await dumpSignInfo();
         const str = signs
             .sort((a, b) => a.ojUsername.localeCompare(b.ojUsername))
-            .map(x => `${x.id},${x.name},${x.ojUsername},${x.site},${x.seat},${x.time}\n`).join('');
+            .map(x => `${x.id},${x.name},${x.name},${x.ojUsername},${x.site},${x.seat},${x.time}\n`).join('');
         await writeData(str, argv[1]);
     },
 
@@ -60,11 +60,13 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
         for (const x of await setUser.getIds()) {
             await setUser.delete(x);
         }
+        let i = 1;
         for (let line of (await readFile(argv[1], 'utf-8')).split('\n')) {
             if (!line) continue;
             line = line.trim();
-            const [id, name, ojUsername, ojPassword] = line.split(',');
-            await setUser.upsert({ id: parseInt(id), name, ojUsername, ojPassword });
+            const [ojUsername, ojPassword] = line.split(',');
+            await setUser.upsert({ id: i, studentId: null, name: null, ojUsername, ojPassword });
+            i++;
         }
         console.info('Have', setUser.count, 'users now.');
         await db.commit();
@@ -79,22 +81,12 @@ const commands: Record<string, (argv: string[]) => Promise<void>> = {
         for (const x of await setSeat.getIds()) {
             await setSeat.delete(x);
         }
-        const STEP_SIZE = 5;
-        const steps = [
-            10, 8, 7, 4, 3, 0,
-            11, 9, 6, 5, 2, 1,
-        ];
-        const prios = [
-            8, 5, 5, 3, 3, 7,
-            8, 6, 6, 4, 4, 7,
-        ];
-        const prioMap = Object.fromEntries(steps.map((x, i) => [x, prios[i]]));
         for (const site of [1, 2] as const) {
-            for (let i = 0; i < 60; i++) {
+            for (let i = 0; i < 80; i++) {
                 await setSeat.insert({
                     site,
                     seatNo: i + 1,
-                    prio: prioMap[Math.floor(i / STEP_SIZE)],
+                    prio: i,
                     used: false,
                 })
             }

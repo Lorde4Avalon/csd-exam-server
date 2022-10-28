@@ -2,6 +2,9 @@
 import Router from "@koa/router";
 import { ApiError } from "./errors";
 import { dump, dumpSignInfo, enterLock, exitLock, getUserById, getUserByOjUsername, getUserBySeat, sign, update } from "./db";
+import fetch from "node-fetch";
+import { config } from "../config";
+
 export const router = new Router();
 
 function api(func: Router.Middleware) {
@@ -37,7 +40,15 @@ router.post(BASE_PATH + '/sign', api(async (ctx) => {
     const site = parseInt(ctx.request.URL.searchParams.get('site')!);
     if (isNaN(id)) throw new ApiError('id is not a number');
     if (site != 1 && site != 2) throw new ApiError('wrong site');
-    return await sign(id, site);
+    const resp = await fetch(`http://106.15.2.32:1337/api/forms?filters[studentId][$eq]=${id}`, {
+        headers: {
+            Authorization: 'Bearer ' + config.userApiToken
+        }
+    });
+    const { data } = await resp.json();
+    if (data.length === 0)  throw new ApiError('student id not found');
+    const { attributes } = data[data.length - 1];
+    return await sign(id, site as (1 | 2), { studentId: attributes.studentId, name: attributes.name });
 }));
 
 router.post(BASE_PATH + '/update', api(async (ctx) => {
