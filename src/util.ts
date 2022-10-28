@@ -1,3 +1,10 @@
+const nanoidModule = (0, eval)("import('nanoid')") as Promise<typeof import("nanoid")>;
+
+export async function generateQrcode() {
+  const { nanoid } = await nanoidModule;
+  return nanoid();
+}
+
 const resolved = Promise.resolve();
 
 export type Deferred<T> = Promise<T> & {

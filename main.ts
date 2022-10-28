@@ -35,7 +35,10 @@ const authValue = "Basic " +
     "base64",
   );
 app.use(async (ctx, next) => {
-  if (ctx.request.get("Authorization") != authValue) {
+  if (
+    !ctx.path.startsWith("/qrcode/") &&
+    ctx.request.get("Authorization") != authValue
+  ) {
     ctx.response.set("WWW-Authenticate", 'Basic realm="Login"');
     ctx.response.status = 401;
     ctx.respond = true;
@@ -46,7 +49,8 @@ app.use(async (ctx, next) => {
 
 app.use(async (ctx, next) => {
   if (
-    !ctx.request.url.startsWith("/api/") &&
+    !ctx.path.startsWith("/api/") &&
+    !ctx.path.startsWith("/qrcode/") &&
     ["GET", "OPTION"].includes(ctx.request.method)
   ) {
     // const resp = await fetch('https://csd-exam-tool.vercel.app' + ctx.request.url, {

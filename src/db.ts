@@ -2,7 +2,7 @@ import { Database, IDbDocSet, query as Q } from "@yuuza/btrdb";
 import chalk from "chalk";
 import { mkdir } from "fs/promises";
 import { ApiError } from "./errors";
-import { OneWriterLock } from "./util";
+import { generateQrcode, OneWriterLock } from "./util";
 
 export const db = new Database();
 const _lock = new OneWriterLock();
@@ -34,6 +34,7 @@ export interface Sign {
   seat: number;
   time: string;
   note: string;
+  qrcode: string | null;
 }
 
 export interface Seat {
@@ -59,6 +60,7 @@ export async function init() {
   setSign = await db.createSet("sign", "doc");
   await setSign.useIndexes({
     site_seat: (s) => [s.site, s.seat],
+    qrcode: (s) => s.qrcode,
   });
   setSeat = await db.createSet("seat", "doc");
   await setSeat.useIndexes({
@@ -73,7 +75,7 @@ export async function sign(id: number, site: 1 | 2, student: StudentInfo) {
     user = (await setUser.query(Q`studentId == ${null}`)).shift()!;
     if (!user) throw new ApiError("no account");
     user.name = student.name;
-    user.studentId = student.studentId;
+    user.studentId = id;
     await setUser.upsert(user);
   }
 
@@ -97,6 +99,7 @@ export async function sign(id: number, site: 1 | 2, student: StudentInfo) {
       site,
       time: new Date().toLocaleString("sv"),
       note: "",
+      qrcode: await generateQrcode(),
     };
     await setSign.upsert(sign);
     console.info(
@@ -140,6 +143,24 @@ export async function update(
   );
 }
 
+export async function useQrcode(qrcode: string) {
+  const [sign] = await setSign.findIndex("qrcode", qrcode);
+  if (!sign) throw new ApiError("qrcode not found");
+  const [user] = await setUser.findIndex("studentId", sign.id);
+  sign.qrcode = null;
+  await setSign.upsert(sign);
+  await db.commit();
+  return signInfo(user, sign);
+}
+
+export async function newQrcode(studentId: number) {
+  const sign = await setSign.get(studentId);
+  sign.qrcode = await generateQrcode();
+  await setSign.upsert(sign);
+  await db.commit();
+  return sign.qrcode;
+}
+
 export async function getUserById(id: number) {
   let [user] = await setUser.query(Q`studentId == ${id}`);
   if (!user) throw new ApiError("no user");
@@ -169,6 +190,7 @@ function signInfo(user: OjUser, sign: Sign | null) {
     site: sign?.site,
     time: sign?.time,
     note: sign?.note,
+    qrcode: sign?.qrcode,
   };
 }
 
