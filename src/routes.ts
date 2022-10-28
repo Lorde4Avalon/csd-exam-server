@@ -15,8 +15,11 @@ import {
   useQrcode,
 } from "./db";
 import { getStudentInfoById } from "./userApi";
+import { qrcodePage } from "./qrcode";
 
 export const router = new Router();
+
+router.get("/qrcode/:qrcode", qrcodePage);
 
 function api(func: Router.Middleware) {
   return (async (ctx, next) => {
@@ -71,37 +74,6 @@ router.post(
     return { qrcode };
   }),
 );
-
-// NOTE: not admin API
-router.get("/qrcode/:qrcode", async (ctx) => {
-  const { qrcode } = ctx.params;
-  ctx.response.type = "html";
-  ctx.response.body = `
-  <style> body { font-family: sans-serif; } </style>
-  <div>
-  `;
-  try {
-    const info = await useQrcode(qrcode);
-    ctx.response.body += `
-      <h1>软件部机试信息</h1>
-      <p>注意: 该页面仅支持一次访问，请截图保存！</p>
-      <p>学号: ${info.studentId}</p>
-      <p>姓名: ${info.name}</p>
-      <p>座位: ${info.seat} (考场: ${info.site})</p>
-      <p>OJ 账号: ${info.ojUsername}</p>
-      <p>OJ 密码: ${info.ojPassword}</p>
-      <p>OJ 地址: https://csd.moe/oj</p>
-    `;
-  } catch (error: any) {
-    if (error?.message !== "qrcode not found") {
-      console.error(error);
-      ctx.response.body = `<p>发生错误，请联系工作人员。</p>`;
-    } else {
-      ctx.response.body = `<p>地址无效，请联系工作人员。</p>`;
-    }
-  }
-  ctx.response.body += `</div>`;
-});
 
 router.post(
   BASE_PATH + "/update",
