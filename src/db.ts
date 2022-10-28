@@ -16,7 +16,6 @@ export function exitLock() {
 }
 
 export interface StudentInfo {
-  studentId: number;
   name: string;
 }
 

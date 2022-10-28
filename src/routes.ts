@@ -14,8 +14,7 @@ import {
   update,
   useQrcode,
 } from "./db";
-import fetch from "node-fetch";
-import { config } from "../config";
+import { getStudentInfoById } from "./userApi";
 
 export const router = new Router();
 
@@ -58,21 +57,9 @@ router.post(
     const site = parseInt(ctx.request.URL.searchParams.get("site")!);
     if (isNaN(id)) throw new ApiError("id is not a number");
     if (site != 1 && site != 2) throw new ApiError("wrong site");
-    const resp = await fetch(
-      `http://106.15.2.32:1337/api/forms?filters[studentId][$eq]=${id}`,
-      {
-        headers: {
-          Authorization: "Bearer " + config.userApiToken,
-        },
-      },
-    );
-    const { data } = await resp.json();
-    if (data.length === 0) throw new ApiError("student id not found");
-    const { attributes } = data[data.length - 1];
-    return await sign(id, site as (1 | 2), {
-      studentId: attributes.studentId,
-      name: attributes.name,
-    });
+    const studentInfo = await getStudentInfoById(id);
+    if (!studentInfo) throw new ApiError("student not found");
+    return await sign(id, site as (1 | 2), { name: studentInfo.name });
   }),
 );
 
