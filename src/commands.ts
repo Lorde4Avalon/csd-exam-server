@@ -1,4 +1,14 @@
-import { db, dump, dumpSignInfo, init, setSeat, setSign, setUser } from "./db";
+import {
+  db,
+  dump,
+  dumpSignInfo,
+  dumpUsed,
+  init,
+  setSeat,
+  setSign,
+  setUser,
+} from "./db";
+import { query as Q } from "@yuuza/btrdb";
 import { readFile, writeFile } from "fs/promises";
 
 // standard 'readline' boilerplate
@@ -29,11 +39,13 @@ export async function handleCommand(argv: string[]) {
     await commands[cmd](argv);
   } else {
     console.info("commands:");
+    console.info("  import_users <file.csv>");
+    console.info("  gen_seats");
     console.info("  stats");
     console.info("  dump [file.json]");
     console.info("  dump_signs [file.csv]");
-    console.info("  import_users <file.csv>");
-    console.info("  gen_seats");
+    console.info("  dump_all [file.json]");
+    console.info("  reset_keep_users");
   }
 }
 
@@ -53,6 +65,11 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
   },
 
   async dump(argv) {
+    const str = JSON.stringify(await dumpUsed());
+    await writeData(str, argv[1]);
+  },
+
+  async dump_all(argv) {
     const str = JSON.stringify(await dump());
     await writeData(str, argv[1]);
   },
@@ -101,7 +118,7 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
   async gen_seats(argv) {
     if (setSeat.count > 0) {
       if (
-        (await input("Seats exists? overwrite? (yes/NO)")).toLowerCase() !=
+        (await input("Seats exists. overwrite? (yes/NO)")).toLowerCase() !=
           "yes"
       ) {
         return;
@@ -121,6 +138,25 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
       }
     }
     console.info("Generated.");
+    await db.commit();
+  },
+
+  async reset_keep_users(argv) {
+    let deletedSigns = 0;
+    for (const id of await setSign.getIds()) {
+      await setSign.delete(id);
+      deletedSigns++;
+    }
+    console.info(`Deleted ${deletedSigns} signs.`);
+
+    let freedSeats = 0;
+    for (const seat of await setSeat.query(Q`used == ${true}`)) {
+      seat.used = false;
+      await setSeat.update(seat);
+      freedSeats++;
+    }
+    console.info(`Freed ${freedSeats} seats`);
+
     await db.commit();
   },
 };

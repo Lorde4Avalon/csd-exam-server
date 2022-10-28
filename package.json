@@ -6,8 +6,12 @@
   "scripts": {
     "start": "ts-node .",
     "cli": "ts-node cli",
-    "dump": "ts-node cli dump >> dump.json",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "backup": "sh scripts/backup.sh",
+    "reset": "npm run backup && rm data/data.db",
+    "import_users": "npm run cli import_users",
+    "gen_seats": "npm run cli gen_seats",
+    "dump": "npm run cli dump",
+    "stats": "npm run cli stats",
     "prepare": ""
   },
   "keywords": [],

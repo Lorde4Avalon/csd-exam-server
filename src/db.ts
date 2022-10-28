@@ -63,6 +63,7 @@ export async function init() {
   });
   setSeat = await db.createSet("seat", "doc");
   await setSeat.useIndexes({
+    used: (s) => s.used,
     used_site: (s) => [s.used, s.site],
     site_seatNo: (s) => [s.site, s.seatNo],
   });
@@ -207,5 +208,13 @@ export async function dump() {
     sign: await setSign.getAll(),
     user: await setUser.getAll(),
     seat: await setSeat.getAll(),
+  };
+}
+
+export async function dumpUsed() {
+  return {
+    sign: await setSign.getAll(),
+    user: await setUser.query(Q`studentId != ${null}`),
+    seat: await setSeat.findIndex("used", true),
   };
 }
