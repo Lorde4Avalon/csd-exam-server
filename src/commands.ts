@@ -132,7 +132,7 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
         await setSeat.insert({
           site,
           seatNo: i + 1,
-          prio: i,
+          prio: Math.floor(i / 5),
           used: false,
         });
       }
