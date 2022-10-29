@@ -142,6 +142,13 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
   },
 
   async reset_keep_users(argv) {
+    if (
+      (await input("Are you sure to reset seats? (yes/NO)")).toLowerCase() !=
+        "yes"
+    ) {
+      return;
+    }
+
     let deletedSigns = 0;
     for (const id of await setSign.getIds()) {
       await setSign.delete(id);
