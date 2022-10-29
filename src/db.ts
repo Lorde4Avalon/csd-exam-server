@@ -185,7 +185,7 @@ export async function getUserBySeat(seat: number, site: number) {
 export async function getUserByOjUsername(ojUsername: string) {
   let [user] = await setUser.query(Q`ojUsername == ${ojUsername}`);
   if (!user) throw new ApiError("no user");
-  const sign = await setSign.get(user.id);
+  const sign = user.studentId ? await setSign.get(user.studentId) : null;
   return signInfo(user, sign);
 }
 
