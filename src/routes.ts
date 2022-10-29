@@ -14,7 +14,7 @@ import {
   update,
   useQrcode,
 } from "./db";
-import { getStudentInfoById } from "./userApi";
+import { getStudentInfoById } from "./externalApi";
 import { qrcodePage } from "./qrcode";
 
 export const router = new Router();

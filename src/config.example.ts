@@ -3,4 +3,5 @@ export const config = {
   username: "",
   password: "",
   userApiToken: "",
+  larkWebhook: "",
 };

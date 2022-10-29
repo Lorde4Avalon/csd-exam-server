@@ -26,7 +26,7 @@ export const qrcodePage = async (ctx: Context) => {
           <p>注意: 该页面仅支持一次访问，请截图保存！</p>
           <p>学号: ${info.studentId}</p>
           <p>姓名: ${info.name}</p>
-          <p>座位: ${info.seat} (考场: ${info.site})</p>
+          <p>座位: ${info.seat} (考场 ${info.site})</p>
           <p>OJ 账号: <code>${info.ojUsername}</code></p>
           <p>OJ 密码: <code>${info.ojPassword}</code></p>
           <p>OJ 地址: https://csd.moe/oj</p>

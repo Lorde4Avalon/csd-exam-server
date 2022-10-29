@@ -2,6 +2,7 @@ import { Database, IDbDocSet, query as Q } from "@yuuza/btrdb";
 import chalk from "chalk";
 import { mkdir } from "fs/promises";
 import { ApiError } from "./errors";
+import { sendLarkMessage } from "./externalApi";
 import { generateQrcode, OneWriterLock } from "./util";
 
 export const db = new Database();
@@ -110,6 +111,9 @@ export async function sign(id: number, site: 1 | 2, student: StudentInfo) {
       `(${user.name})`,
       `[${site}]${seat?.seatNo}`,
     );
+    sendLarkMessage(
+      `【签到】学号 ${id} (${user.name}) 账号 ${user.ojUsername} 座位 ${seat?.seatNo} 考场 ${site}`,
+    );
   }
 
   await db.commit();
@@ -140,6 +144,9 @@ export async function update(
     `(${name})`,
     `[${sign.site}]${seat}`,
     `note=` + note,
+  );
+  sendLarkMessage(
+    `【更新】学号 ${id} (${user.name}) 账号 ${user.ojUsername} 座位 ${newSeat?.seatNo} 考场 ${newSeat.site} 备注 "${note}"`,
   );
 }
 

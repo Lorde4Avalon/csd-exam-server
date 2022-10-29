@@ -15,3 +15,19 @@ export async function getStudentInfoById(id: number) {
   const { attributes } = data[data.length - 1];
   return attributes;
 }
+
+export function sendLarkMessage(text: string) {
+  if (!config.larkWebhook) return;
+  fetch(config.larkWebhook, {
+    method: "post",
+    body: JSON.stringify({
+      "msg_type": "text",
+      "content": {
+        "text": text,
+      },
+    }),
+    headers: { "Content-Type": "application/json" },
+  }).catch((err) => {
+    console.error("[lark]", err);
+  });
+}
