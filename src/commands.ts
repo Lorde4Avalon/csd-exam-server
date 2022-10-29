@@ -79,7 +79,7 @@ export const commands: Record<string, (argv: string[]) => Promise<void>> = {
     const str = signs
       .sort((a, b) => a.ojUsername.localeCompare(b.ojUsername))
       .map((x) =>
-        `${x.id},${x.name},${x.name},${x.ojUsername},${x.site},${x.seat},${x.time}\n`
+        `${x.id},${x.name},${x.ojUsername},${x.site},${x.seat},${x.time},${x.note}\n`
       ).join("");
     await writeData(str, argv[1]);
   },
